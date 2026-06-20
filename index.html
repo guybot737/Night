@@ -2,47 +2,21 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ninght - Canlı Yayın</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <title>Night</title>
 </head>
 <body>
-
-    <header class="navbar">
-        <div class="logo">Ninght</div>
-        <div class="user-actions">
-            <a href="/auth/github" class="btn-github">GitHub ile Giriş Yap</a>
+    <header>
+        <div class="logo">NIGHT</div>
+        <button id="login-btn">GitHub Giriş</button>
+        <div id="user-profile" style="display:none;">
+            <span id="user-name"></span>
+            <button id="admin-panel-btn" style="display:none;">Admin Paneli</button>
         </div>
     </header>
-
-    <main class="container">
-        
-        <div class="video-section">
-            <div class="video-player">
-                <video id="live-video" controls autoplay>
-                    <source src="ornek-yayin.mp4" type="video/mp4">
-                    Tarayıcınız video etiketini desteklemiyor.
-                </video>
-            </div>
-            <div class="stream-info">
-                <h1>Kanka Yayında!</h1>
-                <p>Oyun: Just Chatting</p>
-            </div>
-        </div>
-
-        <div class="chat-section">
-            <div class="chat-header">Canlı Sohbet</div>
-            <div class="chat-messages" id="chat-messages">
-                <p><span class="mod">Sistem:</span> Ninght'a hoş geldin!</p>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Mesaj gönder...">
-                <button onclick="sendMessage()">Gönder</button>
-            </div>
-        </div>
-
-    </main>
-
+    <main><div class="video-container">Yayın Bekleniyor...</div></main>
     <script src="script.js"></script>
 </body>
 </html>
