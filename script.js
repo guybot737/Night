@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, getDocs, where } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB_qgWXfL4hHC2we1VMIMKyxK9jv7wBrCw",
@@ -17,120 +17,151 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GithubAuthProvider();
 
-let currentStreamId = null;
 let currentUser = null;
+let currentStreamId = null;
 
-// Giriş İşlemi
+// Login
 document.getElementById('login-btn').addEventListener('click', () => {
-    signInWithPopup(auth, provider).catch(err => console.log(err));
+    signInWithPopup(auth, provider);
 });
 
-// Çıkış İşlemi
+// Logout
 document.getElementById('logout-btn').addEventListener('click', () => {
-    signOut(auth).then(() => {
-        currentUser = null;
-        updateUI();
-    });
+    signOut(auth);
 });
 
-// UI Güncelleme
+// Auth State
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
-    updateUI();
+    updateAuthUI();
 });
 
-function updateUI() {
+function updateAuthUI() {
+    const loginBtn = document.getElementById('login-btn');
+    const userMenu = document.getElementById('user-menu');
+
     if (currentUser) {
-        document.getElementById('login-btn').classList.add('hidden');
-        document.getElementById('user-profile').classList.remove('hidden');
-        document.getElementById('user-name').innerText = currentUser.displayName;
-        document.getElementById('start-stream-btn').classList.remove('hidden');
+        loginBtn.classList.add('hidden');
+        userMenu.classList.remove('hidden');
+        document.getElementById('user-name').textContent = currentUser.displayName || 'Kullanıcı';
+        document.getElementById('user-avatar').src = currentUser.photoURL || '';
     } else {
-        document.getElementById('login-btn').classList.remove('hidden');
-        document.getElementById('user-profile').classList.add('hidden');
-        document.getElementById('start-stream-btn').classList.add('hidden');
-        document.getElementById('stop-stream-btn').classList.add('hidden');
+        loginBtn.classList.remove('hidden');
+        userMenu.classList.add('hidden');
     }
 }
 
-// Yayın Başlat
-document.getElementById('start-stream-btn').addEventListener('click', async () => {
+// Go Live
+document.getElementById('start-btn').addEventListener('click', async () => {
     if (!currentUser) return;
-    
-    const title = prompt("Yayın başlığı girin:");
+    const title = prompt('Yayın Başlığı:');
     if (!title) return;
 
-    const streamRef = await addDoc(collection(db, "streams"), {
+    const streamRef = await addDoc(collection(db, 'streams'), {
         streamerId: currentUser.uid,
         streamerName: currentUser.displayName,
+        streamerAvatar: currentUser.photoURL,
         title: title,
+        category: 'Sosyal',
         viewers: 1,
         createdAt: serverTimestamp(),
         isActive: true
     });
 
     currentStreamId = streamRef.id;
-    document.getElementById('start-stream-btn').classList.add('hidden');
-    document.getElementById('stop-stream-btn').classList.remove('hidden');
-    document.getElementById('stream-title').innerText = title;
-    document.getElementById('streamer-name').innerText = `Yayıncı: ${currentUser.displayName}`;
-    document.getElementById('stream-status').innerText = "🔴 CANLI";
-    document.getElementById('stream-status').style.color = '#ef4444';
+    alert('Yayın başladı!');
 });
 
-// Yayını Durdur
-document.getElementById('stop-stream-btn').addEventListener('click', async () => {
-    if (!currentStreamId) return;
+// Load Streams
+const streamsQuery = query(collection(db, 'streams'), where('isActive', '==', true), orderBy('createdAt', 'desc'));
 
-    await updateDoc(doc(db, "streams", currentStreamId), {
-        isActive: false
-    });
-
-    currentStreamId = null;
-    document.getElementById('start-stream-btn').classList.remove('hidden');
-    document.getElementById('stop-stream-btn').classList.add('hidden');
-    document.getElementById('stream-status').innerText = "Canlı Yayın Bekleniyor...";
-    document.getElementById('stream-status').style.color = '#666';
-});
-
-// Aktif Yayını Dinle
-const streamsQuery = query(collection(db, "streams"), where("isActive", "==", true), orderBy("createdAt", "desc"));
 onSnapshot(streamsQuery, (snapshot) => {
-    if (!snapshot.empty) {
-        const stream = snapshot.docs[0].data();
-        document.getElementById('stream-title').innerText = stream.title;
-        document.getElementById('streamer-name').innerText = `Yayıncı: ${stream.streamerName}`;
-        document.getElementById('stream-status').innerText = "🔴 CANLI";
-        document.getElementById('stream-status').style.color = '#ef4444';
-        document.getElementById('viewer-count').innerText = `${stream.viewers} İzleyici`;
+    const grid = document.getElementById('streams-grid');
+    grid.innerHTML = '';
+
+    snapshot.forEach(doc => {
+        const stream = doc.data();
+        const card = document.createElement('div');
+        card.className = 'stream-card';
+        card.innerHTML = `
+            <div class="stream-thumbnail">
+                <div class="stream-badge">🔴 CANLI</div>
+                <span>${stream.viewers} İzleyici</span>
+            </div>
+            <div class="stream-info-card">
+                <div class="stream-title">${stream.title}</div>
+                <div class="stream-meta">
+                    <div class="streamer-avatar"></div>
+                    <span>${stream.streamerName}</span>
+                </div>
+            </div>
+        `;
+
+        card.addEventListener('click', () => {
+            openStreamModal(stream, doc.id);
+        });
+
+        grid.appendChild(card);
+    });
+});
+
+function openStreamModal(stream, streamId) {
+    const modal = document.getElementById('stream-modal');
+    document.getElementById('modal-title').textContent = stream.title;
+    document.getElementById('modal-streamer').textContent = `Yayıncı: ${stream.streamerName}`;
+    document.getElementById('modal-viewers').textContent = `👥 ${stream.viewers} İzleyici`;
+    modal.classList.remove('hidden');
+
+    // Seçili yayının chat'ini yükle
+    loadStreamChat(streamId);
+}
+
+// Modal Close
+document.querySelector('.close').addEventListener('click', () => {
+    document.getElementById('stream-modal').classList.add('hidden');
+});
+
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('stream-modal');
+    if (e.target === modal) {
+        modal.classList.add('hidden');
     }
 });
 
-// Chat İşlemleri
-document.getElementById('send-msg-btn').addEventListener('click', async () => {
+// Chat
+function loadStreamChat(streamId) {
+    const chatDiv = document.getElementById('chat-messages');
+    chatDiv.innerHTML = '';
+
+    const messagesQuery = query(
+        collection(db, 'messages'),
+        where('streamId', '==', streamId),
+        orderBy('createdAt', 'asc')
+    );
+
+    onSnapshot(messagesQuery, (snapshot) => {
+        snapshot.forEach(doc => {
+            const msg = doc.data();
+            const msgEl = document.createElement('div');
+            msgEl.className = 'chat-message';
+            msgEl.innerHTML = `<b>${msg.user}:</b> ${msg.text}`;
+            chatDiv.appendChild(msgEl);
+        });
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    });
+}
+
+document.getElementById('send-btn').addEventListener('click', async () => {
+    if (!currentUser || !currentStreamId) return;
+
     const input = document.getElementById('msg-input');
     if (input.value.trim()) {
-        await addDoc(collection(db, "messages"), {
+        await addDoc(collection(db, 'messages'), {
+            streamId: currentStreamId,
+            user: currentUser.displayName,
             text: input.value,
-            user: currentUser ? currentUser.displayName : "Misafir",
-            userAvatar: currentUser ? currentUser.photoURL : "👤",
             createdAt: serverTimestamp()
         });
-        input.value = "";
+        input.value = '';
     }
-});
-
-// Chat'i Anlık Dinle
-const messagesQuery = query(collection(db, "messages"), orderBy("createdAt", "asc"));
-onSnapshot(messagesQuery, (snapshot) => {
-    const chatDiv = document.getElementById('chat-messages');
-    chatDiv.innerHTML = "";
-    snapshot.forEach(doc => {
-        const msg = doc.data();
-        const msgElement = document.createElement('div');
-        msgElement.className = 'chat-message';
-        msgElement.innerHTML = `<p><b>${msg.user}:</b> ${msg.text}</p>`;
-        chatDiv.appendChild(msgElement);
-    });
-    chatDiv.scrollTop = chatDiv.scrollHeight;
 });
