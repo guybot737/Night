@@ -1,0 +1,109 @@
+/* Genel Ayarlar */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #0f0f0f;
+    color: white;
+}
+
+/* Üst Menü */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1a1a1a;
+    padding: 15px 30px;
+    border-bottom: 1px solid #333;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: #51ff00; /* Kick tarzı yeşil veya senin seçtiğin renk */
+}
+
+.btn-github {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+/* Ana Düzen (Yan yana video ve sohbet) */
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+}
+
+.video-section {
+    flex: 1; /* Videonun ekranı kaplamasını sağlar */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.video-player video {
+    width: 100%;
+    background-color: #000;
+    border-radius: 10px;
+}
+
+.stream-info {
+    margin-top: 15px;
+}
+
+/* Sohbet Bölümü */
+.chat-section {
+    width: 350px;
+    background-color: #1a1a1a;
+    border-left: 1px solid #333;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    padding: 15px;
+    font-weight: bold;
+    border-bottom: 1px solid #333;
+    text-align: center;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #333;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    background-color: #333;
+    border: none;
+    color: white;
+    border-radius: 5px 0 0 5px;
+}
+
+.chat-input button {
+    padding: 10px;
+    background-color: #51ff00;
+    color: black;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+}
+
+.mod { color: #51ff00; font-weight: bold; }
