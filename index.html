@@ -2,20 +2,27 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
     <title>Night</title>
 </head>
 <body>
+
     <header>
         <div class="logo">NIGHT</div>
         <button id="login-btn">GitHub Giriş</button>
+        
         <div id="user-profile" style="display:none;">
             <span id="user-name"></span>
             <button id="admin-panel-btn" style="display:none;">Admin Paneli</button>
         </div>
     </header>
-    <main><div class="video-container">Yayın Bekleniyor...</div></main>
+
+    <main>
+        <div class="video-container">Yayın Bekleniyor...</div>
+    </main>
+
     <script type="module" src="script.js"></script>
+
+</body>
 </html>
