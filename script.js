@@ -1,9 +1,7 @@
-// Firebase SDK'larını CDN üzerinden çekiyoruz
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
 import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-// Senin Firebase ayarların
 const firebaseConfig = {
   apiKey: "AIzaSyB_qgWXfL4hHC2we1VMIMKyxK9jv7wBrCw",
   authDomain: "night-176fd.firebaseapp.com",
@@ -14,38 +12,45 @@ const firebaseConfig = {
   measurementId: "G-LQJPYEHHWD"
 };
 
-// Başlatma işlemleri
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 const provider = new GithubAuthProvider();
 
-// Giriş butonuna tıklandığında çalışacak kod
+// Giriş İşlemi
 document.getElementById('login-btn').addEventListener('click', () => {
-    signInWithPopup(auth, provider)
-    .then((result) => {
-        console.log("Giriş yapıldı!");
-    })
-    .catch((error) => {
-        console.error("Hata:", error);
-    });
+    signInWithPopup(auth, provider);
 });
 
-// Kullanıcı giriş yaptı mı kontrolü
+// UI Güncelleme (Giriş yapıldı mı?)
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // Giriş başarılıysa butonları düzenle
-        document.getElementById('login-btn').style.display = 'none';
-        if (document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'block';
-        if (document.getElementById('user-name')) document.getElementById('user-name').innerText = user.displayName;
-        
-        // Admin mail kontrolü (Buraya kendi mailini yaz)
-        if (user.email === "senin.mailin@gmail.com") {
-            if (document.getElementById('admin-panel-btn')) document.getElementById('admin-panel-btn').style.display = 'block';
-        }
-    } else {
-        // Giriş yapılmadıysa
-        document.getElementById('login-btn').style.display = 'block';
-        if (document.getElementById('user-profile')) document.getElementById('user-profile').style.display = 'none';
+        document.getElementById('login-btn').classList.add('hidden');
+        document.getElementById('user-profile').classList.remove('hidden');
+        document.getElementById('user-name').innerText = user.displayName;
     }
+});
+
+// Chat İşlemleri
+document.getElementById('send-msg-btn').addEventListener('click', async () => {
+    const input = document.getElementById('msg-input');
+    if (input.value.trim()) {
+        await addDoc(collection(db, "messages"), {
+            text: input.value,
+            user: auth.currentUser ? auth.currentUser.displayName : "Misafir",
+            createdAt: serverTimestamp()
+        });
+        input.value = "";
+    }
+});
+
+// Chat'i Anlık Dinle
+const q = query(collection(db, "messages"), orderBy("createdAt", "asc"));
+onSnapshot(q, (snapshot) => {
+    const chatDiv = document.getElementById('chat-messages');
+    chatDiv.innerHTML = "";
+    snapshot.forEach(doc => {
+        const msg = doc.data();
+        chatDiv.innerHTML += `<p><b>${msg.user}:</b> ${msg.text}</p>`;
+    });
 });
