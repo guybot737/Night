@@ -3,26 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Night</title>
+    <title>NIGHT | Canlı Yayın</title>
+    <style>
+        :root { --bg: #111; --sidebar: #1a1a1a; --chat: #1a1a1a; --accent: #8b5cf6; --text: #fff; }
+        body { margin: 0; font-family: sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; }
+
+        /* Üst Bar */
+        header { height: 60px; background: var(--sidebar); display: flex; align-items: center; padding: 0 20px; justify-content: space-between; border-bottom: 1px solid #333; }
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+
+        /* Ana Ekran Düzeni (3'lü Yapı) */
+        .app-container { display: flex; flex: 1; overflow: hidden; }
+        
+        /* Sidebar (Kanallar) */
+        aside { width: 240px; background: var(--sidebar); padding: 15px; border-right: 1px solid #333; }
+        
+        /* Yayın Alanı (Merkez) */
+        main { flex: 1; padding: 20px; overflow-y: auto; }
+        .video-player { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; }
+        .stream-info { padding: 20px 0; }
+
+        /* Chat (Sağ) */
+        .chat-sidebar { width: 320px; background: var(--chat); border-left: 1px solid #333; display: flex; flex-direction: column; }
+        .chat-box { flex: 1; padding: 15px; }
+
+        button { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+    </style>
 </head>
 <body>
 
     <header>
         <div class="logo">NIGHT</div>
-        <button id="login-btn">GitHub Giriş</button>
-        
+        <button id="login-btn">Giriş Yap</button>
         <div id="user-profile" style="display:none;">
-            <span id="user-name"></span>
-            <button id="admin-panel-btn" style="display:none;">Admin Paneli</button>
+            <button>Yayın Başlat</button>
         </div>
     </header>
 
-    <main>
-        <div class="video-container">Yayın Bekleniyor...</div>
-    </main>
+    <div class="app-container">
+        <aside>
+            <h4>Takip Edilenler</h4>
+            <p>Kanal 1</p>
+            <p>Kanal 2</p>
+        </aside>
+
+        <main>
+            <div class="video-player"></div>
+            <div class="stream-info">
+                <h1>Yayın Başlığı Burada Yazacak</h1>
+                <p>Yayıncı Adı • 1.2K izleyici</p>
+            </div>
+        </main>
+
+        <section class="chat-sidebar">
+            <div class="chat-box">Chat akışı buraya gelecek...</div>
+        </section>
+    </div>
 
     <script type="module" src="script.js"></script>
-
 </body>
 </html>
